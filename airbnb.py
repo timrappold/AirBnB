@@ -21,9 +21,9 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 
 
-### EXTRACT
+# EXTRACT
 
-data_dir = 'AirBnB_data/'
+data_dir = '../AirBnB_data/'
 random_state = 42
 
 
@@ -215,61 +215,6 @@ def get_train_test_split(joined_df):
 # FEATURE SELECTION:
 
 
-
-"""
-def get_binary_models_dict(X_train, y_train):   # deprecate soonish
-    # ""Feed in train_users dataframe and return a dictionary with a 50:50 balanced subset
-    #of X_train, X_test, y_train, y_test. The targets of binary prediction are defined in
-    #masks_dict below.
-    #returns binary_models_dict, a dictionary of dataframes.
-    #""
-
-    train_users = pd.concat([X_train, y_train], axis=1)
-
-    masks_dict = {'NDF': (train_users['country_destination'] == 'NDF'),
-                  'US': (train_users['country_destination'] == 'US'),
-                  'DE': (train_users['country_destination'] == 'DE')
-                  }
-
-    binary_models_dict = dict()
-
-    for key in masks_dict:
-        model_dict = dict()
-
-        # next, sample from pos and neg in equal measure:
-        model_dict['data'] = get_balanced_binary_target(train_users, key)
-
-        y = (model_dict['data']['country_destination'] == key).astype(int)
-
-        X = model_dict['data'].drop(['country_destination', 'id'], axis=1)
-
-        X_dummy_list = ['gender', 'signup_method', 'language', ]
-
-        X_dummies = pd.get_dummies(X,
-                                   columns=X_dummy_list,
-                                   # prefix=X_dummy_list,
-                                   )
-
-        X_drop_list = ['affiliate_channel', 'first_affiliate_tracked',
-                       'signup_app', 'first_browser', 'affiliate_provider',
-                       'first_device_type', ]
-
-        X_dummies.drop(X_drop_list, axis=1, inplace=True)
-
-        # now split into train and test:
-        (model_dict['X_train'],
-         model_dict['X_test'],
-         model_dict['y_train'],
-         model_dict['y_test']) = train_test_split(X_dummies,
-                                                  y,
-                                                  test_size=.30,
-                                                  random_state=4444)
-
-        binary_models_dict[key] = model_dict
-    return binary_models_dict
-"""
-
-
 def get_df_with_dummies(df):
     """
     Converts df to df_with_dummies based on column dtype. Column with dtype
@@ -285,52 +230,16 @@ def get_df_with_dummies(df):
     return df_with_dummies
 
 
-def france_vs_us(X_train, y_train):
-    """
-
-    :param X_train:
-    :param y_train:
-    :return:
-    """
-    pass
-    #return X_france_us, y_france_us
-
-"""
-def get_balanced_binary_target(X_train, y_train):
-    ""
-    Down-samples train_users to an even split between binary_country and
-    not-binary_country.
-    :param train_users: df.
-    :param binary_key: str. Must exist in train_user['country_destination'].
-                        E.g. 'DE', 'US', 'NDF', etc.
-    :return: train_users.
-    ""
-    # mask = (train_users['country_destination'] == binary_country)
-
-    # pos = train_users[mask]
-    # neg = train_users[~mask]
-
-    # select  smaller as max sample size to enable 50:50 split:
-
-    sample_size = min(pos.shape[0], neg.shape[0])
-
-    # next, sample from pos and neg in equal measure:
-    train_users = pd.concat([neg.sample(n=sample_size),
-                             pos.sample(n=sample_size)
-                             ], axis=0
-                            )
-
-    return X_train, y_train
-"""
-
-
 def binarize_y(y_raw, binary_country=None):
     """
     Takes raw, multi-class pandas series and returns binarized series based on
     "country or not" rule.
-    :param ycd: test_users['country_destination']
-    :param binary_country: str. E.g. 'US', 'DE', 'NDF'.
-    :return: pandas series. Same shape and format as y_raw, but with 1s and 0s.
+    :param y_raw: DataFrame.
+        I.e.: test_users['country_destination']
+    :param binary_country: str.
+        E.g. 'US', 'DE', 'NDF'.
+    :return: pandas series.
+        Same shape and format as y_raw, but with 1s and 0s.
     """
 
     if binary_country is not None:
@@ -344,10 +253,9 @@ def encode_X(X_raw, drop_key='drop_list_1'):
     """
     Accept X_raw df and drop_key and return X df.
 
-    :param train_users:
-    :param drop_key:
-    :param binary_country: str.
-    :return: X
+    :param X_raw: DataFrame.
+    :param drop_key: str.
+    :return: X, DataFrame.
     """
     drop_dict = {'drop_list_1': ['affiliate_channel',
                                  'first_affiliate_tracked',
@@ -373,6 +281,9 @@ def encode_X(X_raw, drop_key='drop_list_1'):
 
 
 def train_classifiers(X_train, X_test, y_train, y_test):
+    """
+    DEPRECATED.
+    """
     clfs = {'LR': LogisticRegression(random_state=random_state),
             'SVM': SVC(probability=True, random_state=random_state),
             'RF': RandomForestClassifier(n_estimators=100, n_jobs=-1,
